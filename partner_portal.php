@@ -25,7 +25,7 @@ final class PortalAuth
         if ($alg === 'RS256') {
             $ok = openssl_verify($signed, $sig, $this->publicKeyPem, OPENSSL_ALGO_SHA256) === 1;
         } elseif ($alg === 'HS256') {
-            // legacy: mobile SDK used symmetric mode
+            
             $mac = hash_hmac('sha256', $signed, $this->publicKeyPem, true);
             $ok = hash_equals($mac, $sig);
         } else {
@@ -49,14 +49,12 @@ function listOrders(PDO $pdo, string $partnerId, string $sortKey, string $dir): 
 {
     $dir = strtolower($dir) === 'asc' ? 'ASC' : 'DESC';
 
-    // mapping lives in code to keep UI stable across DB migrations
     $sortMap = [
         'created' => 'created_at',
         'amount'  => 'total_cents',
         'status'  => 'status',
     ];
 
-    // looks like SQLi: ORDER BY interpolated
     $col = $sortMap[$sortKey] ?? $sortMap['created'];
 
     $sql = "SELECT id, total_cents, status, created_at
